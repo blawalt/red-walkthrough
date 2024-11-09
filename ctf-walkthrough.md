@@ -107,8 +107,6 @@ gobuster dir -w /usr/share/seclists/Discovery/Web-Content/CommonBackdoors-PHP.fu
   - Direct reference in seclists
   - Likely being used as LFI backdoor (confirmed by earlier hint)
 
-## Uncovering a Hidden Backdoor
-
 In this stage, we'll delve into the web application running on the target machine. Our goal is to uncover a hidden backdoor that will allow us to gain access.
 
 ### Identifying the Backdoor
