@@ -1,65 +1,113 @@
-# Capture the Flag Walkthrough
+# Capture the Flag Walkthrough - Detailed Initial Steps
 
-## Initial Setup
+## Network Setup & Reasoning
 
-### Attacker Machine
-- Kali Linux with two network adapters:
-  - Host-only adapter (for target machine connection)
-  - NAT adapter (for internet access)
+### Machine Configuration
+1. **Attacker Machine (Kali)**
+   - Two network adapters:
+     - Host-only adapter (target machine communication)
+     - NAT adapter (internet access for tools/packages)
 
-### Target Machine
-- Vulnerable machine with one Host-only network adapter
-- Note: Host-only networking handles DHCP automatically
+2. **Target Machine**
+   - Single network adapter (host-only)
 
-## Finding the Target
+### Why Host-Only Networking?
+- **Key Advantage**: Automatic DHCP distribution
+- **Contrast**: Internal Networks don't inherently handle DHCP
+- **Practical Benefit**: No need for initial target box access to configure networking
 
-1. **Identify Kali machine's IP address:**
+## Target Discovery & Port Scanning
+
+### Finding Your IP
 ```bash
 hostname -I
 ```
+**Important Note**: You'll likely see two IPs:
+- Public IP (NAT interface)
+- Private IP (Host-only interface)
+- **Use the private IP for this challenge**
 
-2. **Scan network for target machine:**
+### Initial Network Scan
 ```bash
 sudo nmap -v --min-rate 10000 $targetIP/24 | grep open
 ```
-> Replace $targetIP with your Kali machine's private IP
+**Note**: Replace $targetIP with your host IP from step 1
 
-3. **Detailed target scan:**
+### Detailed Port Scan
 ```bash
 sudo nmap -v -sV -sC -oN nmap $targetIP
 ```
-Parameters:
-- `-v`: Verbose output
-- `-sV`: Service versioning
-- `-sC`: Script scan for vulnerabilities
-- `-oN`: Save output to "nmap" file
+**Parameter Breakdown**:
+- `-v`: Verbose output for detailed information
+- `-sV`: Service versioning (e.g., identifies Apache 2.4.41 instead of just "port 80 open")
+- `-sC`: Script scan (runs default scripts to identify common vulnerabilities)
+- `-oN`: Output Normal format (creates readable reference file)
 
-## Analyzing the Website
+**Scan Results**:
+- Port 80: Apache HTTP
+- Port 22: OpenSSH
+- Initial focus: Web service (SSH offers limited initial attack surface)
 
-1. **Access target website:**
-   - Navigate to `http://$targetIP`
+## Web Application Analysis
 
-2. **Inspect source code:**
-   - Look for WordPress indicators
-   - Check for dns-prefetch tag (//s.w.org)
+### Initial Frontend Investigation
+1. Navigate to `http://$targetIP`
+2. **Key Observation**: Plain HTML display suggests either:
+   - Non-existent/inexperienced frontend developer
+   - CSS resolution issues
 
-3. **Fix DNS resolution:**
-   - Add to /etc/hosts:
+### Source Code Analysis
+1. **WordPress Indicators**:
+   - Explicit comment: "Proudly powered by WordPress"
+   - DNS prefetch: `//s.w.org` (WordPress's static resource CDN)
+
+### Troubleshooting CSS Issues (To verify we're not resolving correctly to redrocks.win)
+1. **Using Browser Dev Tools (F12)**:
+   - Check Network tab
+   - Look for failed CSS file requests
+   - Note domain: `redrocks.win`
+
+2. **DNS Resolution Fix**:
+   ```bash
+   # Add to /etc/hosts:
+   $targetIP    redrocks.win
+   ```
+
+## Discovering the Backdoor
+
+### Initial Clues
+1. **"Hello Blue" Link Analysis**:
+   - Source code reveals "Looking For It?" (oddly capitalized)
+   - Suggests potential Local File Inclusion (LFI) vulnerability
+
+2. **Key References in Code**:
+   - Mr. Miessler → Author of Seclists (security assessment collections)
+   - Mention of inability to read → Hints at LFI backdoor
+   - Environment: Apache PHP (WordPress standard)
+
+### Install Seclists
 ```bash
-$targetIP    redrocks.win
+sudo apt install seclists
 ```
 
-## Uncovering the Backdoor
-
-1. **Explore website:**
-   - Check "Hello Blue" link
-   - Look for "Looking For It?" message
-
-2. **Use Gobuster for backdoor discovery:**
+### Backdoor Hunt Using Gobuster
 ```bash
 gobuster dir -w /usr/share/seclists/Discovery/Web-Content/CommonBackdoors-PHP.fuzz.txt \
-  -x .php -u http://redrocks.win/ -o dir80.txt -z
+    -x .php -u http://redrocks.win/ -o dir80.txt -z
 ```
+
+**Result Found**:
+```
+/NetworkFileManagerPHP.php (Status: 500) [Size: 0]
+```
+
+### Result Analysis
+- Google search for "NetworkFileManagerPHP.php" reveals:
+  - GitHub results mentioning webshells
+  - Direct reference in seclists
+  - Likely being used as LFI backdoor (confirmed by earlier hint)
+
+
 
 ## Exploitation Steps
 
