@@ -226,6 +226,29 @@ While analyzing the `NetworkFileManagerPHP.php` file, we encounter an intriguing
     * Use `ssh john@11.0.2.5` to connect to the target machine via SSH with the discovered password.
     * Access granted!
 
+# Red's Defense Mechanisms
+
+## Distractions
+
+* **Annoying Messages:** Red is sending distracting messages approximately every minute.
+* **Forced Logout:** After 5 minutes, Red kicks you out and changes the password.
+
+## Password Cracking Attempts
+
+* **Hydra:** Hydra is used to brute-force the SSH password.
+* **Password Found:**  Hydra successfully finds the correct password.
+* **SSH Login:**  SSH login is successful, but Red continues to send messages and eventually closes the connection.
+* **Repeated Hydra Attempts:** Hydra is used again to find the new password after Red changes it.
+
+## System Manipulation
+
+* **`vi/vim` Replaced:** Red has replaced `vi/vim` with `cat`, making file editing more difficult.
+
+## Privilege Escalation Potential
+
+* **`sudo -l` Output:**
+    *  The `sudo -l` command reveals that the user 'john' can execute `/usr/bin/time` as the user 'ippsec' without a password.
+    * This might be a potential avenue for privilege escalation.
 * 
 ### Initial Access
 ```bash
