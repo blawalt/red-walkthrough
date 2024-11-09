@@ -85,7 +85,7 @@ sudo nmap -v -sV -sC -oN nmap $targetIP
    - Mention of inability to read → Hints at LFI backdoor
    - Environment: Apache PHP (WordPress standard)
 
-### Install Seclists
+### Install Seclists (only necessary if not present on system)
 ```bash
 sudo apt install seclists
 ```
