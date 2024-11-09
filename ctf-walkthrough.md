@@ -249,7 +249,33 @@ While analyzing the `NetworkFileManagerPHP.php` file, we encounter an intriguing
 * **`sudo -l` Output:**
     *  The `sudo -l` command reveals that the user 'john' can execute `/usr/bin/time` as the user 'ippsec' without a password.
     * This might be a potential avenue for privilege escalation.
-* 
+
+
+# Escalating Privileges
+
+## Gtfobins and `sudo`
+
+* **Exploiting `sudo`:**
+    *  Use the command `sudo -u ippsec /usr/bin/time /bin/bash` to gain access to a shell as the user 'ippsec'.
+    * This exploits the `sudo` vulnerability identified earlier.
+
+## Investigating the 'ippsec' User
+
+* **Fake Flag:**
+    * A file named `user.txt` in 'ippsec's home directory contains a fake flag and a message from Red.
+* **Searching for Clues:**
+    * Use the command `find / -group ippsec -type d 2>/dev/null | grep -v proc` to find directories accessible to the 'ippsec' group.
+    * This reveals a `.git` directory in `/var/www/wordpress`.
+
+## Exploring the `.git` Directory
+
+* **Write Access:**
+    * The 'ippsec' group has write access to the `.git` directory.
+* **Secret Files:**
+    * The `.git` directory contains two files: `rev` and `supersecretfileuc.c`.
+    * `supersecretfileuc.c` contains a simple C program that prints "Get out of here Blue!".
+    * `rev` appears to be an executable file.
+
 ### Initial Access
 ```bash
 hydra -l john -P passlist.txt 192.168.56.102 ssh
