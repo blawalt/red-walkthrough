@@ -150,6 +150,31 @@ Now that we've confirmed the Local File Inclusion (LFI) vulnerability, let's exp
 
 4.  **Examining NetworkFileManager.php:** We'll examine the `NetworkFileManager.php` file, which likely contains the vulnerable code responsible for the LFI. Understanding this code can help us craft precise requests to access sensitive files like `wp-config.php`.
 
+## Decrypting the Hidden Clue
+
+While analyzing the `NetworkFileManagerPHP.php` file, we encounter an intriguing Base64-encoded comment. Decoding it reveals a message: "That password alone won't help you! Hashcat says rules are rules."
+
+### Unraveling the Message
+
+1.  **Hashcat Hint:** This message hints at the usage of Hashcat, a popular password cracking tool. It suggests that the password we've encountered might be subject to specific rules or mutations.
+
+2.  **Best64 Rule:** Based on the clue, we can infer that the password might have been transformed using Hashcat's "Best64" rule, which applies various common mutations to passwords.
+
+3.  **Targeting wp-config.php Password:** Given the context, the password in question is likely the one protecting the WordPress database credentials stored in the `wp-config.php` file.
+
+### Accessing wp-config.php
+
+1.  **Base64 Encoding:** To access the `wp-config.php` file through the LFI vulnerability, we need to bypass security measures. One approach is to encode the file path using Base64 encoding.
+
+2.  **PHP Filter:** We can utilize a PHP filter, `php://filter/convert.base64-encode/resource=`, to encode the `wp-config.php` file path before sending it as part of the LFI request.
+
+3.  **Decoding the Response:** The server's response will contain the Base64-encoded content of the `wp-config.php` file. We'll need to decode it to reveal the actual file content.
+
+### Extracting Database Credentials
+
+1.  **Analyzing wp-config.php:** Once we have the decoded `wp-config.php` content, we can extract the database credentials, including the username, password, and database name.
+
+2.  **Database User Confirmation:** We can cross-reference the extracted database username with the information obtained from the `/etc/passwd` file to confirm its existence on the system.
 
 ### Initial Access
 ```bash
