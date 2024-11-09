@@ -226,11 +226,6 @@ While analyzing the `NetworkFileManagerPHP.php` file, we encounter an intriguing
     * Use `ssh john@11.0.2.5` to connect to the target machine via SSH with the discovered password.
     * Access granted!
 
-# Next Steps
-
-* **Further Exploration:** Now that you have SSH access, explore the target system to find any clues or information left by 'Red'.
-* **Maintain Persistence:** Consider establishing a more persistent access method (e.g., reverse shell, SSH key) in case the password changes or access is revoked.
-
 * 
 ### Initial Access
 ```bash
