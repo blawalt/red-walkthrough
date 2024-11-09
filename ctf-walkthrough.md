@@ -176,6 +176,62 @@ While analyzing the `NetworkFileManagerPHP.php` file, we encounter an intriguing
 
 2.  **Database User Confirmation:** We can cross-reference the extracted database username with the information obtained from the `/etc/passwd` file to confirm its existence on the system.
 
+# Unraveling the Mystery
+
+## Decoding the Encrypted Message
+
+* **Encoded Text:** We have an encoded message that needs to be deciphered.
+* **Analyzing the Encoding:** The encoding appears to be Base64.
+* **Decoding with CyberChef:** We can use CyberChef to decode the Base64 message.
+* **The Hidden Message:** The decoded message reads: "Good job so far! Now try to find a way to get a shell. Maybe you can include a file that will give you a reverse shell?"
+
+## Understanding the Challenge
+
+* **Remote Code Execution (RCE):** The challenge hints at finding a way to execute code on the target system.
+* **Reverse Shell:** The message suggests aiming for a reverse shell, which allows us to gain control of the target system by having it connect back to our machine.
+* **File Inclusion Vulnerability:** The mention of "include a file" likely indicates a file inclusion vulnerability that we can exploit.
+
+## Exploring Potential Exploits
+
+* **PHP Wrappers:** PHP wrappers like `php://input` can be used to potentially execute code.
+* **Crafting a Payload:** We need to create a payload that will establish a reverse shell when included.
+* **Netcat Listener:** Set up a Netcat listener on our machine to receive the incoming connection from the reverse shell.
+
+## Executing the Exploit
+
+* **Delivering the Payload:**  Find a way to deliver the reverse shell payload through the file inclusion vulnerability.
+* **Triggering the Payload:**  Ensure the included payload is executed on the target system.
+* **Catching the Shell:** If successful, our Netcat listener should catch the reverse shell connection, granting us control of the target system.
+
+# Cracking the Password
+
+## Utilizing Hashcat
+
+* **Saving the Password:**  Store the known password in a file (`pass.txt`).
+* **Applying Hashcat Rules:**
+    * Use `hashcat --stdout` with the `best64.rule` to generate password variations.
+    * This command processes the password from `pass.txt` and applies mutations based on the rule.
+    * The output (password variations) is saved in `passlist.txt`.
+
+## Identifying the Correct Password
+
+* **Hydra for Password Testing:**
+    * Use `hydra -l john -P passlist.txt 11.0.2.5 ssh` to test the passwords against the SSH service on the target machine (11.0.2.5).
+    * Hydra attempts to log in with the username 'john' and each password from `passlist.txt`.
+
+## Gaining Access
+
+* **Successful Login:** Hydra identifies the correct password from the generated variations.
+* **SSH Connection:**
+    * Use `ssh john@11.0.2.5` to connect to the target machine via SSH with the discovered password.
+    * Access granted!
+
+# Next Steps
+
+* **Further Exploration:** Now that you have SSH access, explore the target system to find any clues or information left by 'Red'.
+* **Maintain Persistence:** Consider establishing a more persistent access method (e.g., reverse shell, SSH key) in case the password changes or access is revoked.
+
+* 
 ### Initial Access
 ```bash
 hydra -l john -P passlist.txt 192.168.56.102 ssh
