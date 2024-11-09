@@ -129,7 +129,29 @@ In this stage, we'll delve into the web application running on the target machin
 
 4.  **Successful LFI:** If our LFI attempt is successful, the web application will respond with the contents of the `/etc/passwd` file, confirming the vulnerability and giving us valuable information about the system's users.
 
-## Exploitation Steps
+
+
+
+## Exploiting the LFI Vulnerability
+
+Now that we've confirmed the Local File Inclusion (LFI) vulnerability, let's explore how we can leverage it to gain further access to the target system.
+
+### Extracting System Information
+
+1.  **Targeting /etc/passwd:**  We can use the identified LFI vulnerability to read the contents of the `/etc/passwd` file. This file stores essential information about user accounts on the system, including usernames, user IDs, and their corresponding shells.
+
+2.  **Analyzing /etc/passwd Output:** The output reveals a list of users present on the system, including `root`, `daemon`, `bin`, and others. Each line represents a user and provides details like their home directory and default shell.
+
+### Identifying WordPress Configuration
+
+1.  **WordPress Focus:** Since the target website appears to be running WordPress, we shift our attention to potential WordPress-related vulnerabilities.
+
+2.  **wp-config.php:** A crucial file in WordPress installations is `wp-config.php`. This file stores sensitive information, including database credentials. We aim to access this file using the LFI vulnerability.
+
+3.  **Tools for Analysis:** Tools like Burp Suite, a web proxy, and PHP wrappers can be instrumental in analyzing the vulnerable code and potentially accessing the `wp-config.php` file.
+
+4.  **Examining NetworkFileManager.php:** We'll examine the `NetworkFileManager.php` file, which likely contains the vulnerable code responsible for the LFI. Understanding this code can help us craft precise requests to access sensitive files like `wp-config.php`.
+
 
 ### Initial Access
 ```bash
