@@ -107,7 +107,27 @@ gobuster dir -w /usr/share/seclists/Discovery/Web-Content/CommonBackdoors-PHP.fu
   - Direct reference in seclists
   - Likely being used as LFI backdoor (confirmed by earlier hint)
 
+## Uncovering a Hidden Backdoor
 
+In this stage, we'll delve into the web application running on the target machine. Our goal is to uncover a hidden backdoor that will allow us to gain access.
+
+### Identifying the Backdoor
+
+1.  **Google Search:** We start by searching for the identified file, `NetworkFileManagerPHP.php`, on Google. This search leads us to a GitHub repository containing various web shells, including the one we're interested in.
+
+2.  **Web Shell Basics:** A web shell is a malicious script that grants remote access and control over a web server. It's often used by attackers to execute commands, upload files, and manipulate the server environment.
+
+3.  **LFI Hint:** Based on the provided hint, we suspect that this web shell is being used in conjunction with a Local File Inclusion (LFI) vulnerability. LFI allows an attacker to trick the web application into including local files from the server, potentially leading to unauthorized access or code execution.
+
+### Testing for LFI
+
+1.  **WFUZZ:** To test our LFI theory, we utilize a tool called `wfuzz`. This tool helps us send a series of requests to the web application, fuzzing different parameters to identify potential vulnerabilities.
+
+2.  **Fuzzing Results:** After running `wfuzz`, we discover a parameter named "key" that seems promising. This parameter might be vulnerable to LFI.
+
+3.  **LFI Attempt:** To confirm our suspicion, we craft a request that includes a known file path (`/etc/passwd`) through the "key" parameter. This file typically contains user information on Linux systems.
+
+4.  **Successful LFI:** If our LFI attempt is successful, the web application will respond with the contents of the `/etc/passwd` file, confirming the vulnerability and giving us valuable information about the system's users.
 
 ## Exploitation Steps
 
